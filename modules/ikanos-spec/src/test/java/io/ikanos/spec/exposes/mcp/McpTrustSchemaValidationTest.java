@@ -70,11 +70,36 @@ class McpTrustSchemaValidationTest {
     }
 
     @Test
-    void schemaShouldAcceptForwardedWithClaimsHeaderOnly() throws Exception {
-        assertValid(capability("    port: 3001", """
+    void schemaShouldRejectClaimsHeaderBecauseUnsignedClaimsAreNotSupported() throws Exception {
+        assertInvalid(capability("    port: 3001", """
+                    trust:
+                      mode: forwarded
+                      agentIdentityHeader: X-Agent-Id
+                      claimsHeader: X-Forwarded-Claims
+                      trustedNetworks: ["10.0.0.0/8"]
+                """));
+    }
+
+    @Test
+    void schemaShouldRejectForwardedWithClaimsHeaderOnly() throws Exception {
+        assertInvalid(capability("    port: 3001", """
                     trust:
                       mode: forwarded
                       claimsHeader: X-Forwarded-Claims
+                      trustedNetworks: ["10.0.0.0/8"]
+                """));
+    }
+
+    @Test
+    void schemaShouldAcceptForwardedTogetherWithAuthentication() throws Exception {
+        assertValid(capability("    port: 3001", """
+                    authentication:
+                      type: oauth2
+                      authorizationServerUri: "https://auth.example.com"
+                      resource: "https://mcp.example.com"
+                    trust:
+                      mode: forwarded
+                      agentIdentityHeader: X-Agent-Id
                       trustedNetworks: ["10.0.0.0/8"]
                 """));
     }
@@ -89,7 +114,7 @@ class McpTrustSchemaValidationTest {
     }
 
     @Test
-    void schemaShouldRejectForwardedWithoutAnyIdentityHeader() throws Exception {
+    void schemaShouldRejectForwardedWithoutAgentIdentityHeader() throws Exception {
         assertInvalid(capability("    port: 3001", """
                     trust:
                       mode: forwarded

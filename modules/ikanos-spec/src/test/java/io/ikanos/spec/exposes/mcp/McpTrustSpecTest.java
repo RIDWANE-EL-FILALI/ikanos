@@ -43,13 +43,11 @@ class McpTrustSpecTest {
                       mode: forwarded
                       agentIdentityHeader: X-Agent-Id
                       trustedNetworks: ["10.0.0.0/8", "fd00::/8"]
-                      claimsHeader: X-Forwarded-Claims
                 """);
         McpTrustSpec trust = mcp.getTrust();
         assertEquals(McpTrustSpec.MODE_FORWARDED, trust.getMode());
         assertEquals("X-Agent-Id", trust.getAgentIdentityHeader());
         assertEquals(List.of("10.0.0.0/8", "fd00::/8"), trust.getTrustedNetworks());
-        assertEquals("X-Forwarded-Claims", trust.getClaimsHeader());
     }
 
     @Test
